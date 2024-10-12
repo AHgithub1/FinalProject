@@ -1,0 +1,48 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj2.command.Command;
+
+public class IntakeRollersCommand extends Command {
+    private final IntakeRollerSubsystem rollersystem;
+    private int notes = 0; // this means that there is no note rn
+    // might not be the best place to put this but can adjust later
+
+    
+    public IntakeRollersCommand(IntakeRollerSubsystem intakerollersubsystem, double position) {
+        this.rollersystem = rollersystem;
+        addRequirements(rollersystem); // base function here
+    }
+    @Override
+    public void FrontSpeed() {
+        double position = controller.getLeftTriggerAxis();
+        pivotSubsystem.setSpeedFrontMotor(position); // regular speed
+    }
+    @Override
+    public void IntegrationSpeed() {
+        double position = controller.getRightTriggerAxis();
+        pivotSubsystem.SetSpeedTalonMotor(-position); // invert the speed
+    }
+    @Override
+    public void brakes() {
+        if (controller.getBbutton()){
+            pivotSubsystem.stop(); // if b button pressed down, instantly stop
+        }
+    }
+    @Override 
+    public void intake() extends IntakePivotSubsystem{
+        if (controller.getAbutton()){
+            pivotSubsystem.setSpeedTalonMotor(-0.5); // to try and intake the note, I set this to negative so the note goes in
+            .andThen(new IntakePivotSetPositionCommand(intakePivotSubsystem, 0))  
+            intakePivotSubsystem.setPosition(0); // this should stow the intake to the retracted pos
+            notes = 1;
+            // there is now a note inserted. will change notes to 0 when get rid of the note
+        }
+    }
+    @Override
+    public void transferNote(){
+        if (controller.getYbutton() && notes == 1){ // make sure there is a note
+            pivotSubsystem.setSpeedTalonMotor(-0.8)// quickly get this to shooter position
+            notes = 0; // now there isn't a note anymore
+        } //
+    }
+}
